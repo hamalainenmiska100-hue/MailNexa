@@ -94,6 +94,21 @@ class MessageDetail {
   final List<String> html;
   final DateTime? createdAt;
 
+  String get displayText {
+    final normalizedText = text.trim();
+    if (normalizedText.isNotEmpty) {
+      return normalizedText;
+    }
+
+    for (final fragment in html) {
+      final cleaned = _htmlToText(fragment);
+      if (cleaned.isNotEmpty) {
+        return cleaned;
+      }
+    }
+    return '';
+  }
+
   factory MessageDetail.fromJson(Map<String, dynamic> json) {
     final from = json['from'] as Map<String, dynamic>? ?? <String, dynamic>{};
     final htmlRaw = json['html'];
@@ -106,5 +121,22 @@ class MessageDetail {
       html: htmlRaw is List ? htmlRaw.map((e) => e.toString()).toList() : const <String>[],
       createdAt: DateTime.tryParse(json['createdAt'] as String? ?? ''),
     );
+  }
+
+  static String _htmlToText(String input) {
+    var value = input
+        .replaceAll(RegExp(r'(?is)<(script|style)[^>]*>.*?</\1>'), ' ')
+        .replaceAll(RegExp(r'(?i)<br\\s*/?>'), '\n')
+        .replaceAll(RegExp(r'(?i)</(p|div|li|tr|h[1-6])>'), '\n');
+    value = value.replaceAll(RegExp(r'(?is)<[^>]+>'), ' ');
+    value = value
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('&amp;', '&')
+        .replaceAll('&lt;', '<')
+        .replaceAll('&gt;', '>')
+        .replaceAll('&quot;', '"')
+        .replaceAll('&#39;', "'");
+    value = value.replaceAll(RegExp(r'[ \t]+'), ' ').replaceAll(RegExp(r'\n{3,}'), '\n\n');
+    return value.trim();
   }
 }

@@ -487,6 +487,21 @@ class _MessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (inbox.error != null && inbox.messages.isEmpty && !inbox.loading) {
+      return Card(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              inbox.error!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       child: inbox.loading
           ? const Center(child: CircularProgressIndicator())
@@ -548,8 +563,8 @@ class _MessageDetailPanel extends StatelessWidget {
                       Expanded(
                         child: SingleChildScrollView(
                           child: Text(
-                            inbox.selected!.text.isNotEmpty
-                                ? inbox.selected!.text
+                            inbox.selected!.displayText.isNotEmpty
+                                ? inbox.selected!.displayText
                                 : 'No plain-text body available. Open in your mail client if needed.',
                           ),
                         ),
