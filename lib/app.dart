@@ -353,7 +353,7 @@ class _CreateAccountFormState extends State<_CreateAccountForm> {
             SizedBox(
               width: 220,
               child: DropdownButtonFormField<String>(
-                value: _selectedDomain,
+                initialValue: _selectedDomain,
                 items: widget.domains
                     .map((MailDomain d) => DropdownMenuItem<String>(
                           value: d.domain,
