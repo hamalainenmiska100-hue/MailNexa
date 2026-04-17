@@ -62,11 +62,12 @@ class InboxMessage {
   final DateTime? createdAt;
 
   factory InboxMessage.fromJson(Map<String, dynamic> json) {
-    final from = json['from'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final fromRaw = json['from'];
+    final from = fromRaw is Map ? fromRaw : const <Object?, Object?>{};
     return InboxMessage(
       id: json['id'] as String? ?? '',
-      fromAddress: from['address'] as String? ?? 'Unknown',
-      fromName: from['name'] as String? ?? '',
+      fromAddress: from['address']?.toString() ?? 'Unknown',
+      fromName: from['name']?.toString() ?? '',
       subject: json['subject'] as String? ?? 'No subject',
       intro: json['intro'] as String? ?? '',
       seen: json['seen'] as bool? ?? false,
@@ -110,12 +111,13 @@ class MessageDetail {
   }
 
   factory MessageDetail.fromJson(Map<String, dynamic> json) {
-    final from = json['from'] as Map<String, dynamic>? ?? <String, dynamic>{};
+    final fromRaw = json['from'];
+    final from = fromRaw is Map ? fromRaw : const <Object?, Object?>{};
     final htmlRaw = json['html'];
     return MessageDetail(
       id: json['id'] as String? ?? '',
-      fromAddress: from['address'] as String? ?? 'Unknown',
-      fromName: from['name'] as String? ?? '',
+      fromAddress: from['address']?.toString() ?? 'Unknown',
+      fromName: from['name']?.toString() ?? '',
       subject: json['subject'] as String? ?? 'No subject',
       text: json['text'] as String? ?? '',
       html: htmlRaw is List ? htmlRaw.map((e) => e.toString()).toList() : const <String>[],
