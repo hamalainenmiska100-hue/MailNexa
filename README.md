@@ -16,3 +16,11 @@ flutter build web --release
 ```
 
 Deploy the generated `build/web` directory to static hosting.
+
+## GitHub Pages auto-deploy
+
+A GitHub Actions workflow is included at `.github/workflows/deploy-gh-pages.yml`.
+
+- Push to `main` (or run it manually from **Actions**)
+- The workflow runs `flutter build web --release`
+- It deploys `build/web` to GitHub Pages automatically
