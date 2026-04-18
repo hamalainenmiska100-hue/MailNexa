@@ -1,12 +1,10 @@
 {
   "name": "Mailnexa",
   "short_name": "Mailnexa",
-  "start_url": ".",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0f1114",
-  "theme_color": "#3a57e8",
-  "description": "Temporary mailbox client built with Flutter Web.",
-  "orientation": "portrait-primary",
-  "prefer_related_applications": false,
+  "theme_color": "#4f73ff",
+  "description": "Temporary mailbox client built with plain HTML, CSS, and JavaScript.",
   "icons": []
 }
