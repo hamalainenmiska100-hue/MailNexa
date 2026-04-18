@@ -1,26 +1,21 @@
 # Mailnexa
 
-Mailnexa is a Flutter Web temporary inbox client that talks directly to `mail.tm` from the browser.
+Mailnexa is now a plain **HTML/CSS/JavaScript** temporary inbox client that talks directly to `mail.tm`.
 
-## Run locally
+## Local development
 
-```bash
-flutter pub get
-flutter run -d chrome
-```
-
-## Production build
+Because the app is static, you can serve the `web/` folder with any static server:
 
 ```bash
-flutter build web --release
+python3 -m http.server 8080 --directory web
 ```
 
-Deploy the generated `build/web` directory to static hosting.
+Then open `http://localhost:8080`.
 
-## GitHub Pages auto-deploy
+## GitHub Pages deployment
 
 A GitHub Actions workflow is included at `.github/workflows/deploy-gh-pages.yml`.
 
-- Push to `main` (or run it manually from **Actions**)
-- The workflow runs `flutter build web --release`
-- It deploys `build/web` to GitHub Pages automatically
+- Push to `main` (or run it manually from **Actions**).
+- The workflow uploads the `web/` directory directly.
+- GitHub Pages serves it as a static site (no Flutter build step).

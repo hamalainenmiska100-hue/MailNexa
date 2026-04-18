@@ -1,15 +1,347 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Mailnexa temporary mail client.">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mailnexa temporary mail client.">
   <title>Mailnexa</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --bg: #0f1114;
+      --panel: #181c22;
+      --panel-soft: #232934;
+      --text: #eef2ff;
+      --text-muted: #a7b0c7;
+      --accent: #4f73ff;
+      --danger: #ff5468;
+      --ok: #35c98f;
+      --border: #2f3644;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(15, 17, 20, 0.95);
+      backdrop-filter: blur(5px);
+      z-index: 20;
+    }
+    h1 { font-size: 1.2rem; margin: 0; }
+    .sub { color: var(--text-muted); font-size: 0.9rem; }
+    main {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 340px 1fr;
+      align-items: start;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
+    input, button, select {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+      margin-bottom: 10px;
+    }
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      border-color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 0;
+    }
+    button.secondary { background: transparent; border-color: var(--border); }
+    button.danger { background: var(--danger); border-color: var(--danger); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .row { display: flex; gap: 8px; }
+    .row > * { flex: 1; }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      min-height: 1.2rem;
+    }
+    .status.error { color: var(--danger); }
+    .status.ok { color: var(--ok); }
+    .mail-list { max-height: 72vh; overflow: auto; padding-right: 4px; }
+    .mail-item {
+      background: var(--panel-soft);
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    .mail-item:hover { border-color: var(--accent); }
+    .mail-item strong, .mail-item small { display: block; }
+    .mail-item small { color: var(--text-muted); margin-top: 4px; }
+    .mail-item.unseen { border-left: 3px solid var(--accent); }
+    #mailView {
+      min-height: 220px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      overflow-wrap: anywhere;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 860px) {
+      main { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <header>
+    <div>
+      <h1>Mailnexa</h1>
+      <div class="sub">Disposable inbox client powered by mail.tm</div>
+    </div>
+    <button id="logoutBtn" class="danger hidden" style="width:auto;padding:10px 16px">Log out</button>
+  </header>
+
+  <main>
+    <section class="card" id="authCard">
+      <h2 style="margin-top:0">Sign in or create inbox</h2>
+      <label for="address">Address</label>
+      <input id="address" placeholder="yourname">
+
+      <label for="domain">Domain</label>
+      <select id="domain"></select>
+
+      <label for="password">Password</label>
+      <input id="password" type="password" placeholder="Minimum 8 characters">
+
+      <div class="row">
+        <button id="loginBtn">Log in</button>
+        <button id="createBtn" class="secondary">Create</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <section class="card" id="inboxCard">
+      <div class="row" style="align-items:center; margin-bottom:10px;">
+        <h2 style="margin:0;flex:1">Inbox</h2>
+        <button id="refreshBtn" class="secondary" style="max-width:120px">Refresh</button>
+      </div>
+      <div class="sub" id="accountLabel">Not signed in</div>
+      <hr style="border-color:var(--border); border-style:solid; border-width:1px 0 0; margin:14px 0;">
+      <div id="mailList" class="mail-list"></div>
+      <h3 style="margin:16px 0 8px">Message</h3>
+      <article id="mailView">Select a message to preview.</article>
+    </section>
+  </main>
+
+  <script>
+    const API = "https://api.mail.tm";
+    const ui = {
+      address: document.getElementById("address"),
+      domain: document.getElementById("domain"),
+      password: document.getElementById("password"),
+      loginBtn: document.getElementById("loginBtn"),
+      createBtn: document.getElementById("createBtn"),
+      refreshBtn: document.getElementById("refreshBtn"),
+      logoutBtn: document.getElementById("logoutBtn"),
+      status: document.getElementById("status"),
+      accountLabel: document.getElementById("accountLabel"),
+      mailList: document.getElementById("mailList"),
+      mailView: document.getElementById("mailView")
+    };
+
+    let authToken = localStorage.getItem("mailnexa_token") || "";
+    let activeAddress = localStorage.getItem("mailnexa_address") || "";
+
+    const setStatus = (msg, type = "") => {
+      ui.status.textContent = msg;
+      ui.status.className = `status ${type}`;
+    };
+
+    const request = async (path, options = {}, useAuth = true) => {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (useAuth && authToken) headers.Authorization = `Bearer ${authToken}`;
+      const res = await fetch(`${API}${path}`, { ...options, headers });
+      const text = await res.text();
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch { data = { message: text }; }
+      if (!res.ok) {
+        throw new Error(data.detail || data.message || `Request failed (${res.status})`);
+      }
+      return data;
+    };
+
+    const fullAddress = () => `${ui.address.value.trim()}${ui.domain.value}`;
+
+    const loadDomains = async () => {
+      try {
+        const data = await request("/domains?page=1", {}, false);
+        ui.domain.innerHTML = "";
+        (data["hydra:member"] || []).forEach((d) => {
+          const opt = document.createElement("option");
+          opt.value = d.domain;
+          opt.textContent = d.domain;
+          ui.domain.appendChild(opt);
+        });
+      } catch (err) {
+        setStatus(`Could not load domains: ${err.message}`, "error");
+      }
+    };
+
+    const renderMessages = (messages) => {
+      ui.mailList.innerHTML = "";
+      if (!messages.length) {
+        ui.mailList.innerHTML = '<div class="sub">Inbox is empty.</div>';
+        return;
+      }
+      messages.forEach((m) => {
+        const item = document.createElement("button");
+        item.className = `mail-item ${m.seen ? "" : "unseen"}`;
+        item.innerHTML = `<strong>${m.subject || "(No subject)"}</strong><small>From: ${m.from?.address || "unknown"}</small><small>${new Date(m.createdAt).toLocaleString()}</small>`;
+        item.onclick = () => openMessage(m.id);
+        ui.mailList.appendChild(item);
+      });
+    };
+
+    const sanitize = (html) => {
+      const div = document.createElement("div");
+      div.textContent = html || "";
+      return div.innerHTML;
+    };
+
+    const openMessage = async (id) => {
+      try {
+        const m = await request(`/messages/${id}`);
+        const htmlPart = m.html && m.html.length ? m.html[0] : "";
+        ui.mailView.innerHTML = `
+          <h4 style="margin-top:0">${sanitize(m.subject || "(No subject)")}</h4>
+          <p class="sub">From ${sanitize(m.from?.address || "unknown")} • ${new Date(m.createdAt).toLocaleString()}</p>
+          ${htmlPart || `<pre style="white-space:pre-wrap">${sanitize(m.text || "No content")}</pre>`}
+        `;
+      } catch (err) {
+        ui.mailView.textContent = `Failed to open message: ${err.message}`;
+      }
+    };
+
+    const refreshInbox = async () => {
+      if (!authToken) return;
+      ui.refreshBtn.disabled = true;
+      try {
+        const data = await request("/messages?page=1");
+        renderMessages(data["hydra:member"] || []);
+      } catch (err) {
+        setStatus(err.message, "error");
+      } finally {
+        ui.refreshBtn.disabled = false;
+      }
+    };
+
+    const persistSession = () => {
+      localStorage.setItem("mailnexa_token", authToken);
+      localStorage.setItem("mailnexa_address", activeAddress);
+      ui.accountLabel.textContent = activeAddress ? `Signed in as ${activeAddress}` : "Not signed in";
+      ui.logoutBtn.classList.toggle("hidden", !authToken);
+    };
+
+    const login = async () => {
+      if (!ui.address.value.trim() || !ui.password.value) {
+        setStatus("Address and password are required.", "error");
+        return;
+      }
+      ui.loginBtn.disabled = true;
+      setStatus("Logging in...");
+      try {
+        activeAddress = fullAddress();
+        const token = await request("/token", {
+          method: "POST",
+          body: JSON.stringify({ address: activeAddress, password: ui.password.value })
+        }, false);
+        authToken = token.token;
+        persistSession();
+        setStatus("Logged in.", "ok");
+        await refreshInbox();
+      } catch (err) {
+        setStatus(err.message, "error");
+      } finally {
+        ui.loginBtn.disabled = false;
+      }
+    };
+
+    const createAccount = async () => {
+      if (ui.password.value.length < 8) {
+        setStatus("Password must be at least 8 characters.", "error");
+        return;
+      }
+      ui.createBtn.disabled = true;
+      setStatus("Creating account...");
+      try {
+        const address = fullAddress();
+        await request("/accounts", {
+          method: "POST",
+          body: JSON.stringify({ address, password: ui.password.value })
+        }, false);
+        setStatus("Account created. Logging in...", "ok");
+        await login();
+      } catch (err) {
+        setStatus(err.message, "error");
+      } finally {
+        ui.createBtn.disabled = false;
+      }
+    };
+
+    const logout = () => {
+      authToken = "";
+      activeAddress = "";
+      localStorage.removeItem("mailnexa_token");
+      localStorage.removeItem("mailnexa_address");
+      ui.mailList.innerHTML = "";
+      ui.mailView.textContent = "Select a message to preview.";
+      persistSession();
+      setStatus("Logged out.");
+    };
+
+    ui.loginBtn.onclick = login;
+    ui.createBtn.onclick = createAccount;
+    ui.refreshBtn.onclick = refreshInbox;
+    ui.logoutBtn.onclick = logout;
+
+    (async () => {
+      await loadDomains();
+      if (activeAddress.includes("@")) {
+        const [local, domain] = activeAddress.split("@");
+        ui.address.value = local;
+        if ([...ui.domain.options].some((o) => o.value === `@${domain}`)) {
+          ui.domain.value = `@${domain}`;
+        }
+      }
+      persistSession();
+      if (authToken) {
+        setStatus("Session restored.", "ok");
+        refreshInbox();
+      }
+    })();
+  </script>
 </body>
 </html>
