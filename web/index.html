@@ -8,176 +8,275 @@
   <link rel="manifest" href="manifest.json">
   <style>
     :root {
-      --bg: #0f1114;
-      --panel: #181c22;
-      --panel-soft: #232934;
-      --text: #eef2ff;
-      --text-muted: #a7b0c7;
-      --accent: #4f73ff;
-      --danger: #ff5468;
-      --ok: #35c98f;
-      --border: #2f3644;
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --brand: #1e67e8;
+      --border: #d1d5db;
+      --danger: #dc2626;
     }
+
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      display: grid;
-      grid-template-rows: auto 1fr;
+      background: var(--bg);
     }
+
     header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+
+    .logo {
+      margin: 0;
+      color: #1556bf;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: #1e67e8; }
+
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .address-box {
+      border: 5px solid var(--brand);
+      border-radius: 18px;
+      padding: 24px 14px;
+      font-size: clamp(1.8rem, 7vw, 3.2rem);
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.1;
+      margin-bottom: 14px;
+      word-break: break-all;
+      background: #fff;
+      min-height: 108px;
+      display: grid;
+      place-items: center;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: clamp(1.1rem, 4vw, 1.1rem);
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .button-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    button {
+      border: 0;
+      padding: 18px 14px;
+      font-size: clamp(1.25rem, 3.8vw, 2.1rem);
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    button:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .primary {
+      color: #fff;
+      background: var(--brand);
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+    }
+
+    .secondary {
+      color: #111827;
+      background: #e5e7eb;
+      font-size: 2rem;
+    }
+
+    .danger { background: #ef4444; color: #fff; border-right: 0; }
+
+    .inbox-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      background: rgba(15, 17, 20, 0.95);
-      backdrop-filter: blur(5px);
-      z-index: 20;
+      gap: 12px;
     }
-    h1 { font-size: 1.2rem; margin: 0; }
-    .sub { color: var(--text-muted); font-size: 0.9rem; }
-    main {
-      width: min(1100px, 100%);
-      margin: 0 auto;
-      padding: 18px;
+
+    .inbox-head h2 {
+      margin: 0;
+      font-size: 2.25rem;
+    }
+
+    .refresh-btn {
+      width: auto;
+      font-size: 2rem;
+      border-radius: 12px;
+      padding: 10px 24px;
+    }
+
+    .separator {
+      border: 0;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    .mail-list {
       display: grid;
-      gap: 16px;
-      grid-template-columns: 340px 1fr;
-      align-items: start;
+      gap: 10px;
+      max-height: 48vh;
+      overflow: auto;
+      padding-right: 4px;
     }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-    }
-    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px; }
-    input, button, select {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--panel-soft);
-      color: var(--text);
-      padding: 10px 12px;
-      font: inherit;
-      margin-bottom: 10px;
-    }
-    button {
-      cursor: pointer;
-      background: var(--accent);
-      border-color: var(--accent);
-      font-weight: 600;
-      margin-bottom: 0;
-    }
-    button.secondary { background: transparent; border-color: var(--border); }
-    button.danger { background: var(--danger); border-color: var(--danger); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    .row { display: flex; gap: 8px; }
-    .row > * { flex: 1; }
-    .status {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      min-height: 1.2rem;
-    }
-    .status.error { color: var(--danger); }
-    .status.ok { color: var(--ok); }
-    .mail-list { max-height: 72vh; overflow: auto; padding-right: 4px; }
+
     .mail-item {
-      background: var(--panel-soft);
-      border: 1px solid transparent;
+      text-align: left;
+      border: 1px solid var(--border);
       border-radius: 10px;
+      background: #f8fafc;
+      font-size: 1rem;
       padding: 12px;
-      margin-bottom: 8px;
-      cursor: pointer;
+      color: var(--text);
     }
-    .mail-item:hover { border-color: var(--accent); }
-    .mail-item strong, .mail-item small { display: block; }
-    .mail-item small { color: var(--text-muted); margin-top: 4px; }
-    .mail-item.unseen { border-left: 3px solid var(--accent); }
+
+    .mail-item.unseen { border-left: 4px solid var(--brand); }
+
+    #emptyState {
+      text-align: center;
+      color: var(--muted);
+      font-size: clamp(1.4rem, 5vw, 2rem);
+      font-weight: 700;
+      padding: 48px 0;
+    }
+
     #mailView {
-      min-height: 220px;
-      background: var(--panel-soft);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 14px;
+      background: #f9fafb;
+      min-height: 120px;
       overflow-wrap: anywhere;
     }
-    .hidden { display: none !important; }
-    @media (max-width: 860px) {
-      main { grid-template-columns: 1fr; }
+
+    .status {
+      margin-top: 8px;
+      min-height: 1.3em;
+      color: var(--muted);
+      font-weight: 600;
     }
+
+    .status.error { color: var(--danger); }
+    .status.ok { color: #059669; }
   </style>
 </head>
 <body>
   <header>
-    <div>
-      <h1>Mailnexa</h1>
-      <div class="sub">Disposable inbox client powered by mail.tm</div>
-    </div>
-    <button id="logoutBtn" class="danger hidden" style="width:auto;padding:10px 16px">Log out</button>
+    <h1 class="logo">temp<span>@</span>mail</h1>
   </header>
 
   <main>
-    <section class="card" id="authCard">
-      <h2 style="margin-top:0">Sign in or create inbox</h2>
-      <label for="address">Address</label>
-      <input id="address" placeholder="yourname">
-
-      <label for="domain">Domain</label>
-      <select id="domain"></select>
-
-      <label for="password">Password</label>
-      <input id="password" type="password" placeholder="Minimum 8 characters">
-
-      <div class="row">
-        <button id="loginBtn">Log in</button>
-        <button id="createBtn" class="secondary">Create</button>
+    <section class="card">
+      <div id="addressBox" class="address-box">Generating...</div>
+      <p class="subtitle">Secure your personal inbox and enjoy a spam-free experience with our instant, private, and safe disposable email addresses.</p>
+      <div class="button-grid">
+        <button id="copyBtn" class="primary">📋 Copy</button>
+        <button id="newBtn" class="primary">＋ New</button>
+        <button id="switchBtn" class="primary">⇄ Switch</button>
+        <button id="deleteBtn" class="primary danger">🗑 Delete</button>
       </div>
-      <div class="status" id="status"></div>
+      <div id="status" class="status"></div>
     </section>
 
-    <section class="card" id="inboxCard">
-      <div class="row" style="align-items:center; margin-bottom:10px;">
-        <h2 style="margin:0;flex:1">Inbox</h2>
-        <button id="refreshBtn" class="secondary" style="max-width:120px">Refresh</button>
+    <section class="card">
+      <div class="inbox-head">
+        <h2>Inbox</h2>
+        <button id="refreshBtn" class="secondary refresh-btn">⟳ Refresh</button>
       </div>
-      <div class="sub" id="accountLabel">Not signed in</div>
-      <hr style="border-color:var(--border); border-style:solid; border-width:1px 0 0; margin:14px 0;">
+      <hr class="separator">
       <div id="mailList" class="mail-list"></div>
-      <h3 style="margin:16px 0 8px">Message</h3>
+      <div id="emptyState">Waiting for incoming emails ...</div>
       <article id="mailView">Select a message to preview.</article>
     </section>
   </main>
 
   <script>
     const API = "https://api.mail.tm";
+    const STORAGE_KEY = "mailnexa_accounts";
+    const ACTIVE_KEY = "mailnexa_active_index";
+
     const ui = {
-      address: document.getElementById("address"),
-      domain: document.getElementById("domain"),
-      password: document.getElementById("password"),
-      loginBtn: document.getElementById("loginBtn"),
-      createBtn: document.getElementById("createBtn"),
+      addressBox: document.getElementById("addressBox"),
+      copyBtn: document.getElementById("copyBtn"),
+      newBtn: document.getElementById("newBtn"),
+      switchBtn: document.getElementById("switchBtn"),
+      deleteBtn: document.getElementById("deleteBtn"),
       refreshBtn: document.getElementById("refreshBtn"),
-      logoutBtn: document.getElementById("logoutBtn"),
       status: document.getElementById("status"),
-      accountLabel: document.getElementById("accountLabel"),
       mailList: document.getElementById("mailList"),
+      emptyState: document.getElementById("emptyState"),
       mailView: document.getElementById("mailView")
     };
 
-    let authToken = localStorage.getItem("mailnexa_token") || "";
-    let activeAddress = localStorage.getItem("mailnexa_address") || "";
+    let domains = [];
+    let accounts = [];
+    let activeIndex = 0;
+    let authToken = "";
+    let accountId = "";
 
     const setStatus = (msg, type = "") => {
       ui.status.textContent = msg;
       ui.status.className = `status ${type}`;
+    };
+
+    const saveAccounts = () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+      localStorage.setItem(ACTIVE_KEY, String(activeIndex));
+    };
+
+    const currentAccount = () => accounts[activeIndex] || null;
+
+    const updateAddressBox = () => {
+      const account = currentAccount();
+      ui.addressBox.textContent = account ? account.address : "No address yet";
+      ui.switchBtn.disabled = accounts.length < 2;
+      ui.deleteBtn.disabled = !account;
+    };
+
+    const randomString = (length) => {
+      const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(length));
+      return [...bytes].map((b) => chars[b % chars.length]).join("");
+    };
+
+    const randomAddress = () => `${randomString(9)}@${domains[Math.floor(Math.random() * domains.length)]}`;
+    const randomPassword = () => `${randomString(12)}A9!`;
+
+    const sanitize = (text) => {
+      const div = document.createElement("div");
+      div.textContent = text || "";
+      return div.innerHTML;
     };
 
     const request = async (path, options = {}, useAuth = true) => {
@@ -193,42 +292,26 @@
       return data;
     };
 
-    const fullAddress = () => `${ui.address.value.trim()}${ui.domain.value}`;
-
     const loadDomains = async () => {
-      try {
-        const data = await request("/domains?page=1", {}, false);
-        ui.domain.innerHTML = "";
-        (data["hydra:member"] || []).forEach((d) => {
-          const opt = document.createElement("option");
-          opt.value = d.domain;
-          opt.textContent = d.domain;
-          ui.domain.appendChild(opt);
-        });
-      } catch (err) {
-        setStatus(`Could not load domains: ${err.message}`, "error");
-      }
+      const data = await request("/domains?page=1", {}, false);
+      domains = (data["hydra:member"] || []).map((d) => d.domain).filter(Boolean);
+      if (!domains.length) throw new Error("No domains available.");
     };
 
     const renderMessages = (messages) => {
       ui.mailList.innerHTML = "";
       if (!messages.length) {
-        ui.mailList.innerHTML = '<div class="sub">Inbox is empty.</div>';
+        ui.emptyState.style.display = "block";
         return;
       }
+      ui.emptyState.style.display = "none";
       messages.forEach((m) => {
         const item = document.createElement("button");
         item.className = `mail-item ${m.seen ? "" : "unseen"}`;
-        item.innerHTML = `<strong>${m.subject || "(No subject)"}</strong><small>From: ${m.from?.address || "unknown"}</small><small>${new Date(m.createdAt).toLocaleString()}</small>`;
+        item.innerHTML = `<strong>${sanitize(m.subject || "(No subject)")}</strong><div>From: ${sanitize(m.from?.address || "unknown")}</div><small>${new Date(m.createdAt).toLocaleString()}</small>`;
         item.onclick = () => openMessage(m.id);
         ui.mailList.appendChild(item);
       });
-    };
-
-    const sanitize = (html) => {
-      const div = document.createElement("div");
-      div.textContent = html || "";
-      return div.innerHTML;
     };
 
     const openMessage = async (id) => {
@@ -236,9 +319,9 @@
         const m = await request(`/messages/${id}`);
         const htmlPart = m.html && m.html.length ? m.html[0] : "";
         ui.mailView.innerHTML = `
-          <h4 style="margin-top:0">${sanitize(m.subject || "(No subject)")}</h4>
-          <p class="sub">From ${sanitize(m.from?.address || "unknown")} • ${new Date(m.createdAt).toLocaleString()}</p>
-          ${htmlPart || `<pre style="white-space:pre-wrap">${sanitize(m.text || "No content")}</pre>`}
+          <h3 style="margin:0 0 8px">${sanitize(m.subject || "(No subject)")}</h3>
+          <p style="margin:0 0 12px;color:#6b7280">From ${sanitize(m.from?.address || "unknown")} • ${new Date(m.createdAt).toLocaleString()}</p>
+          ${htmlPart || `<pre style="white-space:pre-wrap;margin:0">${sanitize(m.text || "No content")}</pre>`}
         `;
       } catch (err) {
         ui.mailView.textContent = `Failed to open message: ${err.message}`;
@@ -258,90 +341,149 @@
       }
     };
 
-    const persistSession = () => {
-      localStorage.setItem("mailnexa_token", authToken);
-      localStorage.setItem("mailnexa_address", activeAddress);
-      ui.accountLabel.textContent = activeAddress ? `Signed in as ${activeAddress}` : "Not signed in";
-      ui.logoutBtn.classList.toggle("hidden", !authToken);
-    };
-
-    const login = async () => {
-      if (!ui.address.value.trim() || !ui.password.value) {
-        setStatus("Address and password are required.", "error");
-        return;
-      }
-      ui.loginBtn.disabled = true;
-      setStatus("Logging in...");
-      try {
-        activeAddress = fullAddress();
-        const token = await request("/token", {
-          method: "POST",
-          body: JSON.stringify({ address: activeAddress, password: ui.password.value })
-        }, false);
-        authToken = token.token;
-        persistSession();
-        setStatus("Logged in.", "ok");
-        await refreshInbox();
-      } catch (err) {
-        setStatus(err.message, "error");
-      } finally {
-        ui.loginBtn.disabled = false;
-      }
-    };
-
-    const createAccount = async () => {
-      if (ui.password.value.length < 8) {
-        setStatus("Password must be at least 8 characters.", "error");
-        return;
-      }
-      ui.createBtn.disabled = true;
-      setStatus("Creating account...");
-      try {
-        const address = fullAddress();
-        await request("/accounts", {
-          method: "POST",
-          body: JSON.stringify({ address, password: ui.password.value })
-        }, false);
-        setStatus("Account created. Logging in...", "ok");
-        await login();
-      } catch (err) {
-        setStatus(err.message, "error");
-      } finally {
-        ui.createBtn.disabled = false;
-      }
-    };
-
-    const logout = () => {
-      authToken = "";
-      activeAddress = "";
-      localStorage.removeItem("mailnexa_token");
-      localStorage.removeItem("mailnexa_address");
-      ui.mailList.innerHTML = "";
+    const loginWithAccount = async (account) => {
+      const token = await request("/token", {
+        method: "POST",
+        body: JSON.stringify({ address: account.address, password: account.password })
+      }, false);
+      authToken = token.token;
+      const me = await request("/me");
+      accountId = me.id;
+      updateAddressBox();
+      setStatus(`Signed in as ${account.address}`, "ok");
       ui.mailView.textContent = "Select a message to preview.";
-      persistSession();
-      setStatus("Logged out.");
+      await refreshInbox();
     };
 
-    ui.loginBtn.onclick = login;
-    ui.createBtn.onclick = createAccount;
-    ui.refreshBtn.onclick = refreshInbox;
-    ui.logoutBtn.onclick = logout;
+    const createNewAccount = async () => {
+      if (!domains.length) return;
+      ui.newBtn.disabled = true;
+      setStatus("Creating a new email address...");
+      try {
+        let address = "";
+        let password = "";
+        for (let i = 0; i < 5; i += 1) {
+          address = randomAddress();
+          password = randomPassword();
+          try {
+            await request("/accounts", {
+              method: "POST",
+              body: JSON.stringify({ address, password })
+            }, false);
+            break;
+          } catch (err) {
+            if (i === 4) throw err;
+          }
+        }
+        accounts.push({ address, password });
+        activeIndex = accounts.length - 1;
+        saveAccounts();
+        await loginWithAccount(currentAccount());
+      } catch (err) {
+        setStatus(`Could not create account: ${err.message}`, "error");
+      } finally {
+        ui.newBtn.disabled = false;
+      }
+    };
 
-    (async () => {
-      await loadDomains();
-      if (activeAddress.includes("@")) {
-        const [local, domain] = activeAddress.split("@");
-        ui.address.value = local;
-        if ([...ui.domain.options].some((o) => o.value === `@${domain}`)) {
-          ui.domain.value = `@${domain}`;
+    const switchAccount = async () => {
+      if (accounts.length < 2) {
+        setStatus("Create another address first.", "error");
+        return;
+      }
+      activeIndex = (activeIndex + 1) % accounts.length;
+      saveAccounts();
+      updateAddressBox();
+      setStatus("Switching account...");
+      try {
+        await loginWithAccount(currentAccount());
+      } catch (err) {
+        setStatus(`Unable to switch: ${err.message}`, "error");
+      }
+    };
+
+    const copyAddress = async () => {
+      const account = currentAccount();
+      if (!account) return;
+      try {
+        await navigator.clipboard.writeText(account.address);
+        setStatus("Email address copied.", "ok");
+      } catch {
+        setStatus("Clipboard unavailable. Copy manually.", "error");
+      }
+    };
+
+    const deleteCurrent = async () => {
+      const account = currentAccount();
+      if (!account) return;
+      ui.deleteBtn.disabled = true;
+      setStatus("Deleting address...");
+      try {
+        if (accountId) {
+          await request(`/accounts/${accountId}`, { method: "DELETE" });
+        }
+      } catch {
+        // If account was already removed remotely we still clear local state.
+      }
+
+      accounts.splice(activeIndex, 1);
+      if (activeIndex >= accounts.length) activeIndex = Math.max(0, accounts.length - 1);
+      saveAccounts();
+
+      if (!accounts.length) {
+        authToken = "";
+        accountId = "";
+        ui.mailList.innerHTML = "";
+        ui.emptyState.style.display = "block";
+        ui.mailView.textContent = "Select a message to preview.";
+        updateAddressBox();
+        setStatus("Address deleted. Creating a new one...", "ok");
+        await createNewAccount();
+      } else {
+        try {
+          await loginWithAccount(currentAccount());
+          setStatus("Address deleted.", "ok");
+        } catch (err) {
+          setStatus(`Deleted locally. Login failed: ${err.message}`, "error");
         }
       }
-      persistSession();
-      if (authToken) {
-        setStatus("Session restored.", "ok");
-        refreshInbox();
+      ui.deleteBtn.disabled = false;
+    };
+
+    const bootstrap = async () => {
+      try {
+        accounts = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        activeIndex = Number(localStorage.getItem(ACTIVE_KEY) || 0);
+        if (!Number.isInteger(activeIndex) || activeIndex < 0) activeIndex = 0;
+
+        await loadDomains();
+
+        if (!accounts.length) {
+          await createNewAccount();
+        } else {
+          if (activeIndex >= accounts.length) activeIndex = 0;
+          updateAddressBox();
+          try {
+            await loginWithAccount(currentAccount());
+          } catch {
+            setStatus("Stored account failed. Creating a new one...", "error");
+            await createNewAccount();
+          }
+        }
+      } catch (err) {
+        setStatus(`Startup failed: ${err.message}`, "error");
+      } finally {
+        updateAddressBox();
       }
-    })();
+    };
+
+    ui.copyBtn.onclick = copyAddress;
+    ui.newBtn.onclick = createNewAccount;
+    ui.switchBtn.onclick = switchAccount;
+    ui.deleteBtn.onclick = deleteCurrent;
+    ui.refreshBtn.onclick = refreshInbox;
+
+    bootstrap();
   </script>
 </body>
 </html>
