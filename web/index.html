@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mailnexa temporary mail client.">
+  <title>Mailnexa</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --bg: radial-gradient(circle at top left, #e8efff 0%, #f7f9ff 40%, #f5f5f7 100%);
+      --surface: rgba(255, 255, 255, 0.85);
+      --surface-strong: #ffffff;
+      --text: #111827;
+      --muted: #667085;
+      --brand: #2563eb;
+      --brand-deep: #1e4ec6;
+      --danger: #e84646;
+      --border: #d9dfec;
+      --shadow: 0 14px 40px rgba(37, 99, 235, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(8px);
+      background: rgba(250, 252, 255, 0.76);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: clamp(1.75rem, 6vw, 3rem);
+      letter-spacing: -0.03em;
+      font-weight: 850;
+      color: #1350c5;
+      line-height: 1;
+    }
+
+    .brand small {
+      font-size: 0.35em;
+      color: var(--muted);
+      margin-left: 10px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      vertical-align: middle;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 20px auto;
+      padding: 0 16px 26px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 2vw, 24px);
+    }
+
+    .hero {
+      display: grid;
+      gap: 14px;
+    }
+
+    .address-box {
+      border-radius: 18px;
+      border: 3px solid var(--brand);
+      padding: 20px;
+      min-height: 100px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(1.45rem, 4.8vw, 2.9rem);
+      font-weight: 820;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      text-align: center;
+      background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
+      word-break: break-all;
+    }
+
+    .subtitle {
+      margin: 0;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.45;
+      font-size: clamp(1.04rem, 2.5vw, 1.35rem);
+    }
+
+    .button-grid {
+      margin-top: 2px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: clamp(1.05rem, 3.4vw, 1.75rem);
+      font-weight: 760;
+      padding: 15px 14px;
+      transition: transform 0.14s ease, filter 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      isolation: isolate;
+    }
+
+    .btn:active { transform: scale(0.985); }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .btn-primary {
+      background: linear-gradient(140deg, var(--brand) 0%, #2e79ff 100%);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+    }
+
+    .btn-primary:hover { filter: brightness(1.04); }
+
+    .btn-danger {
+      background: linear-gradient(145deg, #ef5353 0%, var(--danger) 100%);
+      box-shadow: 0 10px 24px rgba(232, 70, 70, 0.24);
+      color: #fff;
+    }
+
+    .btn-soft {
+      background: #f3f6fc;
+      border: 1px solid var(--border);
+      color: #0f234a;
+      font-size: clamp(1rem, 2.8vw, 1.5rem);
+      padding-inline: 18px;
+    }
+
+    .status {
+      min-height: 1.35em;
+      color: var(--muted);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .status.error { color: #d92d20; }
+    .status.ok { color: #0f9f6e; }
+
+    .inbox-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .inbox-head h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      letter-spacing: -0.02em;
+    }
+
+    .separator {
+      margin: 14px 0;
+      border: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .mail-list {
+      display: grid;
+      gap: 10px;
+      max-height: 45vh;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .mail-item {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #ffffff;
+      color: var(--text);
+      font-size: 1rem;
+      box-shadow: 0 5px 14px rgba(17, 24, 39, 0.05);
+    }
+
+    .mail-item strong { display: block; font-size: 1.04rem; margin-bottom: 4px; }
+    .mail-item small { color: var(--muted); display: block; margin-top: 4px; }
+    .mail-item.unseen { border-left: 4px solid var(--brand); }
+
+    #emptyState {
+      text-align: center;
+      padding: 36px 10px;
+      color: #7a859a;
+      font-size: clamp(1.25rem, 3.2vw, 2rem);
+      font-weight: 780;
+    }
+
+    #mailView {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fcfdff;
+      padding: 14px;
+      min-height: 120px;
+      overflow-wrap: anywhere;
+    }
+
+    .ripple-wave {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      background: rgba(255, 255, 255, 0.38);
+      animation: ripple 650ms ease-out;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    @media (max-width: 620px) {
+      .topbar { padding: 15px 14px; }
+      .button-grid { gap: 8px; }
+      .btn { padding: 14px 10px; }
+      .panel { border-radius: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <h1 class="brand">Mailnexa <small>Disposable Inbox</small></h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel hero">
+      <div id="addressBox" class="address-box">Generating address...</div>
+      <p class="subtitle">Secure your personal inbox and enjoy a spam-free experience with instant, private, and safe disposable email addresses.</p>
+
+      <div class="button-grid">
+        <button id="copyBtn" class="btn btn-primary ripple"><i class="bi bi-copy"></i><span>Copy</span></button>
+        <button id="newBtn" class="btn btn-primary ripple"><i class="bi bi-plus-lg"></i><span>New</span></button>
+        <button id="switchBtn" class="btn btn-primary ripple"><i class="bi bi-arrow-left-right"></i><span>Switch</span></button>
+        <button id="deleteBtn" class="btn btn-danger ripple"><i class="bi bi-trash3"></i><span>Delete</span></button>
+      </div>
+
+      <div id="status" class="status"></div>
+    </section>
+
+    <section class="panel">
+      <div class="inbox-head">
+        <h2>Inbox</h2>
+        <button id="refreshBtn" class="btn btn-soft ripple"><i class="bi bi-arrow-clockwise"></i><span>Refresh</span></button>
+      </div>
+      <hr class="separator">
+      <div id="mailList" class="mail-list"></div>
+      <div id="emptyState">Waiting for incoming emails ...</div>
+      <article id="mailView">Select a message to preview.</article>
+    </section>
+  </main>
+
+  <script>
+    const API = "https://api.mail.tm";
+    const STORAGE_KEY = "mailnexa_accounts";
+    const ACTIVE_KEY = "mailnexa_active_index";
+
+    const ui = {
+      addressBox: document.getElementById("addressBox"),
+      copyBtn: document.getElementById("copyBtn"),
+      newBtn: document.getElementById("newBtn"),
+      switchBtn: document.getElementById("switchBtn"),
+      deleteBtn: document.getElementById("deleteBtn"),
+      refreshBtn: document.getElementById("refreshBtn"),
+      status: document.getElementById("status"),
+      mailList: document.getElementById("mailList"),
+      emptyState: document.getElementById("emptyState"),
+      mailView: document.getElementById("mailView")
+    };
+
+    let domains = [];
+    let accounts = [];
+    let activeIndex = 0;
+    let authToken = "";
+    let accountId = "";
+
+    const setStatus = (msg, type = "") => {
+      ui.status.textContent = msg;
+      ui.status.className = `status ${type}`;
+    };
+
+    const saveAccounts = () => {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+      localStorage.setItem(ACTIVE_KEY, String(activeIndex));
+    };
+
+    const currentAccount = () => accounts[activeIndex] || null;
+
+    const updateAddressBox = () => {
+      const account = currentAccount();
+      ui.addressBox.textContent = account ? account.address : "No address available";
+      ui.switchBtn.disabled = accounts.length < 2;
+      ui.deleteBtn.disabled = !account;
+    };
+
+    const randomString = (length) => {
+      const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+      const bytes = crypto.getRandomValues(new Uint8Array(length));
+      return [...bytes].map((b) => chars[b % chars.length]).join("");
+    };
+
+    const randomAddress = () => `${randomString(9)}@${domains[Math.floor(Math.random() * domains.length)]}`;
+    const randomPassword = () => `${randomString(12)}A9!`;
+
+    const sanitize = (text) => {
+      const div = document.createElement("div");
+      div.textContent = text || "";
+      return div.innerHTML;
+    };
+
+    const request = async (path, options = {}, useAuth = true) => {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (useAuth && authToken) headers.Authorization = `Bearer ${authToken}`;
+      const res = await fetch(`${API}${path}`, { ...options, headers });
+      const text = await res.text();
+      let data = {};
+      try { data = text ? JSON.parse(text) : {}; } catch { data = { message: text }; }
+      if (!res.ok) throw new Error(data.detail || data.message || `Request failed (${res.status})`);
+      return data;
+    };
+
+    const addRipple = (event) => {
+      const button = event.currentTarget;
+      const wave = document.createElement("span");
+      wave.className = "ripple-wave";
+      const rect = button.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      wave.style.width = `${size}px`;
+      wave.style.height = `${size}px`;
+      wave.style.left = `${event.clientX - rect.left - (size / 2)}px`;
+      wave.style.top = `${event.clientY - rect.top - (size / 2)}px`;
+      button.appendChild(wave);
+      wave.addEventListener("animationend", () => wave.remove(), { once: true });
+    };
+
+    const initRipples = () => {
+      document.querySelectorAll(".ripple").forEach((button) => {
+        button.addEventListener("click", addRipple);
+      });
+    };
+
+    const loadDomains = async () => {
+      const data = await request("/domains?page=1", {}, false);
+      domains = (data["hydra:member"] || []).map((d) => d.domain).filter(Boolean);
+      if (!domains.length) throw new Error("No domains available.");
+    };
+
+    const renderMessages = (messages) => {
+      ui.mailList.innerHTML = "";
+      if (!messages.length) {
+        ui.emptyState.style.display = "block";
+        return;
+      }
+
+      ui.emptyState.style.display = "none";
+      messages.forEach((message) => {
+        const item = document.createElement("button");
+        item.className = `btn mail-item ripple ${message.seen ? "" : "unseen"}`;
+        item.innerHTML = `<strong>${sanitize(message.subject || "(No subject)")}</strong><div>From: ${sanitize(message.from?.address || "unknown")}</div><small>${new Date(message.createdAt).toLocaleString()}</small>`;
+        item.onclick = () => openMessage(message.id);
+        item.addEventListener("click", addRipple);
+        ui.mailList.appendChild(item);
+      });
+    };
+
+    const openMessage = async (id) => {
+      try {
+        const message = await request(`/messages/${id}`);
+        const htmlPart = message.html && message.html.length ? message.html[0] : "";
+        ui.mailView.innerHTML = `
+          <h3 style="margin:0 0 8px">${sanitize(message.subject || "(No subject)")}</h3>
+          <p style="margin:0 0 12px;color:#667085">From ${sanitize(message.from?.address || "unknown")} • ${new Date(message.createdAt).toLocaleString()}</p>
+          ${htmlPart || `<pre style="white-space:pre-wrap;margin:0">${sanitize(message.text || "No content")}</pre>`}
+        `;
+      } catch (err) {
+        ui.mailView.textContent = `Failed to open message: ${err.message}`;
+      }
+    };
+
+    const refreshInbox = async () => {
+      if (!authToken) return;
+      ui.refreshBtn.disabled = true;
+      try {
+        const data = await request("/messages?page=1");
+        renderMessages(data["hydra:member"] || []);
+      } catch (err) {
+        setStatus(err.message, "error");
+      } finally {
+        ui.refreshBtn.disabled = false;
+      }
+    };
+
+    const loginWithAccount = async (account) => {
+      const token = await request("/token", {
+        method: "POST",
+        body: JSON.stringify({ address: account.address, password: account.password })
+      }, false);
+      authToken = token.token;
+      const me = await request("/me");
+      accountId = me.id;
+      updateAddressBox();
+      setStatus(`Signed in as ${account.address}`, "ok");
+      ui.mailView.textContent = "Select a message to preview.";
+      await refreshInbox();
+    };
+
+    const createNewAccount = async () => {
+      if (!domains.length) return;
+      ui.newBtn.disabled = true;
+      setStatus("Creating a new email address...");
+      try {
+        let address = "";
+        let password = "";
+
+        for (let i = 0; i < 5; i += 1) {
+          address = randomAddress();
+          password = randomPassword();
+          try {
+            await request("/accounts", {
+              method: "POST",
+              body: JSON.stringify({ address, password })
+            }, false);
+            break;
+          } catch (err) {
+            if (i === 4) throw err;
+          }
+        }
+
+        accounts.push({ address, password });
+        activeIndex = accounts.length - 1;
+        saveAccounts();
+        await loginWithAccount(currentAccount());
+      } catch (err) {
+        setStatus(`Could not create account: ${err.message}`, "error");
+      } finally {
+        ui.newBtn.disabled = false;
+      }
+    };
+
+    const switchAccount = async () => {
+      if (accounts.length < 2) {
+        setStatus("Create another address first.", "error");
+        return;
+      }
+      activeIndex = (activeIndex + 1) % accounts.length;
+      saveAccounts();
+      updateAddressBox();
+      setStatus("Switching account...");
+      try {
+        await loginWithAccount(currentAccount());
+      } catch (err) {
+        setStatus(`Unable to switch: ${err.message}`, "error");
+      }
+    };
+
+    const copyAddress = async () => {
+      const account = currentAccount();
+      if (!account) return;
+      try {
+        await navigator.clipboard.writeText(account.address);
+        setStatus("Email address copied.", "ok");
+      } catch {
+        setStatus("Clipboard access is unavailable. Copy manually.", "error");
+      }
+    };
+
+    const deleteCurrent = async () => {
+      const account = currentAccount();
+      if (!account) return;
+      ui.deleteBtn.disabled = true;
+      setStatus("Deleting address...");
+      try {
+        if (accountId) await request(`/accounts/${accountId}`, { method: "DELETE" });
+      } catch {
+        // If account is already removed remotely, still clear local state.
+      }
+
+      accounts.splice(activeIndex, 1);
+      if (activeIndex >= accounts.length) activeIndex = Math.max(0, accounts.length - 1);
+      saveAccounts();
+
+      if (!accounts.length) {
+        authToken = "";
+        accountId = "";
+        ui.mailList.innerHTML = "";
+        ui.emptyState.style.display = "block";
+        ui.mailView.textContent = "Select a message to preview.";
+        updateAddressBox();
+        setStatus("Address deleted. Creating a new one...", "ok");
+        await createNewAccount();
+      } else {
+        try {
+          await loginWithAccount(currentAccount());
+          setStatus("Address deleted.", "ok");
+        } catch (err) {
+          setStatus(`Deleted locally. Login failed: ${err.message}`, "error");
+        }
+      }
+      ui.deleteBtn.disabled = false;
+    };
+
+    const bootstrap = async () => {
+      try {
+        accounts = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        activeIndex = Number(localStorage.getItem(ACTIVE_KEY) || 0);
+        if (!Number.isInteger(activeIndex) || activeIndex < 0) activeIndex = 0;
+
+        await loadDomains();
+
+        if (!accounts.length) {
+          await createNewAccount();
+        } else {
+          if (activeIndex >= accounts.length) activeIndex = 0;
+          updateAddressBox();
+          try {
+            await loginWithAccount(currentAccount());
+          } catch {
+            setStatus("Stored account failed. Creating a new one...", "error");
+            await createNewAccount();
+          }
+        }
+      } catch (err) {
+        setStatus(`Startup failed: ${err.message}`, "error");
+      } finally {
+        updateAddressBox();
+      }
+    };
+
+    ui.copyBtn.onclick = copyAddress;
+    ui.newBtn.onclick = createNewAccount;
+    ui.switchBtn.onclick = switchAccount;
+    ui.deleteBtn.onclick = deleteCurrent;
+    ui.refreshBtn.onclick = refreshInbox;
+
+    initRipples();
+    bootstrap();
+  </script>
+</body>
+</html>
