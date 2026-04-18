@@ -174,6 +174,78 @@
     .status.error { color: #d92d20; }
     .status.ok { color: #0f9f6e; }
 
+    .account-tools {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .custom-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      padding: 14px 14px;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input:focus {
+      border-color: #8fb1ff;
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .switch-wrap {
+      position: relative;
+    }
+
+    .switch-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+      z-index: 30;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      max-height: 250px;
+      overflow: auto;
+    }
+
+    .switch-menu[hidden] { display: none; }
+
+    .switch-item {
+      border: 0;
+      background: #f8faff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: #1e2c4c;
+      font-weight: 620;
+    }
+
+    .switch-item.active {
+      background: #ddebff;
+      color: #0f3a93;
+    }
+
+    .switch-item:hover {
+      background: #eaf2ff;
+    }
+
     .inbox-head {
       display: flex;
       align-items: center;
@@ -248,6 +320,93 @@
       to { transform: scale(4); opacity: 0; }
     }
 
+    .btn.loading {
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .btn.loading::after {
+      content: "";
+      width: 1em;
+      height: 1em;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .btn-soft.loading::after {
+      border-color: rgba(30, 78, 198, 0.18);
+      border-top-color: #1e4ec6;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .mail-list.loading {
+      position: relative;
+      min-height: 120px;
+      overflow: hidden;
+    }
+
+    .mail-list.loading::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #f1f4fa 25%, #e3eaf8 50%, #f1f4fa 75%);
+      background-size: 220% 100%;
+      animation: shimmer 1.1s linear infinite;
+      border-radius: 12px;
+      opacity: 0.9;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -20% 0; }
+    }
+
+    .snackbar-stack {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      width: min(360px, calc(100vw - 26px));
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .snackbar {
+      pointer-events: auto;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 680;
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.24);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transform: translateY(12px);
+      opacity: 0;
+      animation: toast-in 220ms ease forwards;
+    }
+
+    .snackbar.ok { background: linear-gradient(140deg, #0ea96f 0%, #0b8a5c 100%); }
+    .snackbar.error { background: linear-gradient(140deg, #ef5353 0%, #d92d20 100%); }
+    .snackbar.info { background: linear-gradient(140deg, #2563eb 0%, #1e4ec6 100%); }
+
+    .snackbar.exit {
+      animation: toast-out 180ms ease forwards;
+    }
+
+    @keyframes toast-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes toast-out {
+      to { opacity: 0; transform: translateY(8px); }
+    }
+
     @media (max-width: 620px) {
       .topbar { padding: 15px 14px; }
       .button-grid { gap: 8px; }
@@ -271,8 +430,17 @@
       <div class="button-grid">
         <button id="copyBtn" class="btn btn-primary ripple"><i class="bi bi-copy"></i><span>Copy</span></button>
         <button id="newBtn" class="btn btn-primary ripple"><i class="bi bi-plus-lg"></i><span>New</span></button>
-        <button id="switchBtn" class="btn btn-primary ripple"><i class="bi bi-arrow-left-right"></i><span>Switch</span></button>
+        <div class="switch-wrap">
+          <button id="switchBtn" class="btn btn-primary ripple"><i class="bi bi-arrow-left-right"></i><span>Switch</span></button>
+          <div id="switchMenu" class="switch-menu" hidden></div>
+        </div>
         <button id="deleteBtn" class="btn btn-danger ripple"><i class="bi bi-trash3"></i><span>Delete</span></button>
+      </div>
+      <div class="account-tools">
+        <div class="custom-row">
+          <input id="usernameInput" class="input" type="text" maxlength="26" placeholder="Pick username (letters, numbers, dots, underscore)">
+          <button id="customBtn" class="btn btn-soft ripple"><i class="bi bi-person-plus"></i><span>Use username</span></button>
+        </div>
       </div>
 
       <div id="status" class="status"></div>
@@ -289,6 +457,7 @@
       <article id="mailView">Select a message to preview.</article>
     </section>
   </main>
+  <div id="snackbarStack" class="snackbar-stack" aria-live="polite" aria-atomic="false"></div>
 
   <script>
     const API = "https://api.mail.tm";
@@ -300,12 +469,16 @@
       copyBtn: document.getElementById("copyBtn"),
       newBtn: document.getElementById("newBtn"),
       switchBtn: document.getElementById("switchBtn"),
+      switchMenu: document.getElementById("switchMenu"),
       deleteBtn: document.getElementById("deleteBtn"),
+      customBtn: document.getElementById("customBtn"),
+      usernameInput: document.getElementById("usernameInput"),
       refreshBtn: document.getElementById("refreshBtn"),
       status: document.getElementById("status"),
       mailList: document.getElementById("mailList"),
       emptyState: document.getElementById("emptyState"),
-      mailView: document.getElementById("mailView")
+      mailView: document.getElementById("mailView"),
+      snackbarStack: document.getElementById("snackbarStack")
     };
 
     let domains = [];
@@ -317,6 +490,22 @@
     const setStatus = (msg, type = "") => {
       ui.status.textContent = msg;
       ui.status.className = `status ${type}`;
+    };
+
+    const notify = (message, type = "info") => {
+      const toast = document.createElement("div");
+      toast.className = `snackbar ${type}`;
+      toast.textContent = message;
+      ui.snackbarStack.appendChild(toast);
+      window.setTimeout(() => {
+        toast.classList.add("exit");
+        toast.addEventListener("animationend", () => toast.remove(), { once: true });
+      }, 3400);
+    };
+
+    const setButtonLoading = (button, loading) => {
+      button.classList.toggle("loading", loading);
+      button.disabled = loading;
     };
 
     const saveAccounts = () => {
@@ -331,6 +520,43 @@
       ui.addressBox.textContent = account ? account.address : "No address available";
       ui.switchBtn.disabled = accounts.length < 2;
       ui.deleteBtn.disabled = !account;
+      renderSwitchMenu();
+    };
+
+    const toggleSwitchMenu = () => {
+      if (accounts.length < 2) {
+        notify("Create another address first.", "error");
+        setStatus("Create another address first.", "error");
+        return;
+      }
+      ui.switchMenu.hidden = !ui.switchMenu.hidden;
+    };
+
+    const renderSwitchMenu = () => {
+      ui.switchMenu.innerHTML = "";
+      accounts.forEach((account, index) => {
+        const item = document.createElement("button");
+        item.className = `switch-item ${index === activeIndex ? "active" : ""}`;
+        item.textContent = account.address;
+        item.onclick = async () => {
+          if (index === activeIndex) {
+            ui.switchMenu.hidden = true;
+            return;
+          }
+          activeIndex = index;
+          saveAccounts();
+          ui.switchMenu.hidden = true;
+          setStatus("Switching account...");
+          notify("Switching address...", "info");
+          try {
+            await loginWithAccount(currentAccount());
+          } catch (err) {
+            setStatus(`Unable to switch: ${err.message}`, "error");
+            notify(`Unable to switch: ${err.message}`, "error");
+          }
+        };
+        ui.switchMenu.appendChild(item);
+      });
     };
 
     const randomString = (length) => {
@@ -419,14 +645,17 @@
 
     const refreshInbox = async () => {
       if (!authToken) return;
-      ui.refreshBtn.disabled = true;
+      setButtonLoading(ui.refreshBtn, true);
+      ui.mailList.classList.add("loading");
       try {
         const data = await request("/messages?page=1");
         renderMessages(data["hydra:member"] || []);
       } catch (err) {
         setStatus(err.message, "error");
+        notify(err.message, "error");
       } finally {
-        ui.refreshBtn.disabled = false;
+        ui.mailList.classList.remove("loading");
+        setButtonLoading(ui.refreshBtn, false);
       }
     };
 
@@ -440,20 +669,26 @@
       accountId = me.id;
       updateAddressBox();
       setStatus(`Signed in as ${account.address}`, "ok");
+      notify(`Signed in as ${account.address}`, "ok");
       ui.mailView.textContent = "Select a message to preview.";
       await refreshInbox();
     };
 
-    const createNewAccount = async () => {
+    const normalizeUsername = (value) => value.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "");
+
+    const createNewAccount = async (preferredUsername = "") => {
       if (!domains.length) return;
-      ui.newBtn.disabled = true;
+      setButtonLoading(ui.newBtn, true);
       setStatus("Creating a new email address...");
+      notify("Creating a new email address...", "info");
       try {
         let address = "";
         let password = "";
+        const cleanUsername = normalizeUsername(preferredUsername);
+        const selectedDomain = domains[Math.floor(Math.random() * domains.length)];
 
         for (let i = 0; i < 5; i += 1) {
-          address = randomAddress();
+          address = cleanUsername ? `${cleanUsername}${i ? i : ""}@${selectedDomain}` : randomAddress();
           password = randomPassword();
           try {
             await request("/accounts", {
@@ -470,27 +705,26 @@
         activeIndex = accounts.length - 1;
         saveAccounts();
         await loginWithAccount(currentAccount());
+        notify(`Address ready: ${address}`, "ok");
       } catch (err) {
         setStatus(`Could not create account: ${err.message}`, "error");
+        notify(`Could not create account: ${err.message}`, "error");
       } finally {
-        ui.newBtn.disabled = false;
+        setButtonLoading(ui.newBtn, false);
+        setButtonLoading(ui.customBtn, false);
       }
     };
 
-    const switchAccount = async () => {
-      if (accounts.length < 2) {
-        setStatus("Create another address first.", "error");
+    const createCustomAccount = async () => {
+      const username = normalizeUsername(ui.usernameInput.value);
+      if (!username || username.length < 3) {
+        setStatus("Username must be at least 3 valid characters.", "error");
+        notify("Username must be at least 3 valid characters.", "error");
         return;
       }
-      activeIndex = (activeIndex + 1) % accounts.length;
-      saveAccounts();
-      updateAddressBox();
-      setStatus("Switching account...");
-      try {
-        await loginWithAccount(currentAccount());
-      } catch (err) {
-        setStatus(`Unable to switch: ${err.message}`, "error");
-      }
+      setButtonLoading(ui.customBtn, true);
+      await createNewAccount(username);
+      ui.usernameInput.value = "";
     };
 
     const copyAddress = async () => {
@@ -499,8 +733,10 @@
       try {
         await navigator.clipboard.writeText(account.address);
         setStatus("Email address copied.", "ok");
+        notify("Email address copied.", "ok");
       } catch {
         setStatus("Clipboard access is unavailable. Copy manually.", "error");
+        notify("Clipboard access unavailable. Copy manually.", "error");
       }
     };
 
@@ -509,6 +745,7 @@
       if (!account) return;
       ui.deleteBtn.disabled = true;
       setStatus("Deleting address...");
+      notify("Deleting current address...", "info");
       try {
         if (accountId) await request(`/accounts/${accountId}`, { method: "DELETE" });
       } catch {
@@ -532,8 +769,10 @@
         try {
           await loginWithAccount(currentAccount());
           setStatus("Address deleted.", "ok");
+          notify("Address deleted.", "ok");
         } catch (err) {
           setStatus(`Deleted locally. Login failed: ${err.message}`, "error");
+          notify(`Deleted locally. Login failed: ${err.message}`, "error");
         }
       }
       ui.deleteBtn.disabled = false;
@@ -567,10 +806,20 @@
     };
 
     ui.copyBtn.onclick = copyAddress;
-    ui.newBtn.onclick = createNewAccount;
-    ui.switchBtn.onclick = switchAccount;
+    ui.newBtn.onclick = () => createNewAccount();
+    ui.switchBtn.onclick = toggleSwitchMenu;
     ui.deleteBtn.onclick = deleteCurrent;
     ui.refreshBtn.onclick = refreshInbox;
+    ui.customBtn.onclick = createCustomAccount;
+    ui.usernameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        createCustomAccount();
+      }
+    });
+    document.addEventListener("click", (event) => {
+      if (!event.target.closest(".switch-wrap")) ui.switchMenu.hidden = true;
+    });
 
     initRipples();
     bootstrap();
